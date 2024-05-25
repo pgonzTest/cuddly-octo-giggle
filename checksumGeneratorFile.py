@@ -2,7 +2,7 @@ import os
 import hashlib
 
 # Get the path to the user's documents directory using os.path.expanduser()
-documents_path = os.path.expanduser('~/Documents')
+DOCUMENTS_PATH = os.path.expanduser('~/Documents')
 
 def generate_checksum(file_path, algorithm="sha256"):
     """Generate checksum for a file using the specified hashing algorithm."""
@@ -37,6 +37,6 @@ def generate_checksums_in_folder(folder_path, output_directory, algorithm="sha25
     print(f"Checksums generated and saved to {output_file}.")
 
 if __name__ == "__main__":
-    folder_path = documents_path
-    output_directory = documents_path
+    folder_path = DOCUMENTS_PATH
+    output_directory = DOCUMENTS_PATH
     generate_checksums_in_folder(folder_path, output_directory)
