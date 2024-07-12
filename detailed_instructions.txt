@@ -1,0 +1,85 @@
+Instructions - File Verification Scripts
+
+1. Prepare the Source Files
+Place the files you want to verify in the user's documents directory. Ensure there are no other files in this directory that you don't want to verify.
+
+2. Generate Checksums for Source Files
+Run the `checksumGeneratorFile.py` script to generate checksums for the source files.
+
+python checksumGeneratorFile.py
+
+3. Rename the Generated File to `previousChecksums.txt`
+
+Rename-Item -Path "%USERPROFILE%\Documents\checksums.txt" -NewName "previousChecksums.txt"
+
+4. Delete and Copy
+Delete the files read in previous steps and copy the target files into the user's documents directory.
+
+- Execute the delete command to remove all files in the user's documents directory:
+
+    
+    Remove-Item ~/Documents/* -Force
+    
+
+- Copy the target files into the user's documents directory:
+
+    
+    Copy-Item -Path "<location of Target Files>" -Destination "%USERPROFILE%\Documents\" -Recurse
+    
+
+5. Generate Checksums for Target Files
+Run the `checksumGeneratorFile.py` script again to generate checksums for the new set of files.
+
+
+python checksumGeneratorFile.py
+
+
+6. Rename the Generated File to `currentChecksums.txt`
+
+
+Rename-Item -Path "%USERPROFILE%\Documents\checksums.txt" -NewName "currentChecksums.txt"
+
+
+7. Compare Checksums
+Run the `checksumCompare.py` script to compare the checksums.
+
+
+python checksumCompare.py
+
+
+8. Review the Log File
+A log file will be generated in the user's documents directory with the verification results. Review this file to ensure the migration test was successful.
+
+By following these steps, you can verify that the files have been correctly migrated by comparing their checksums before and after the migration process.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Instructions - Data Validation Script
+
+Requirements
+
+    Python 3.6 or Higher: Ensure you are using a compatible version of Python.
+    pandas Library: Install this library to handle data manipulation. 
+    Install it using pip:
+
+        pip install pandas
+
+
+
+Setup
+
+1. Prepare CSV Files:
+
+    Source CSV (source.csv): Your source data file.
+    Target CSV (target.csv): Your target data file after the data migration has been completed.
+    Location: Place both files in your local Documents folder, or adjust the file paths in the script accordingly.
+
+2. Running the Script:
+    Open a terminal or command prompt.
+    Navigate to the directory containing the script.
+    Run the script with the following command:
+            python data_validation.py
+
+3. Review Results:
+    Check the script's output in the terminal and the generated report file (validation_report.txt) in your Documents folder to verify if the data migration is 
+    successful or if discrepancies are found.
