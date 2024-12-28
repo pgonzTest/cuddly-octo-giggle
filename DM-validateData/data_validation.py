@@ -4,15 +4,42 @@ from datetime import datetime
 
 """
 Key Features:
-- Reads source and target CSV files into pandas DataFrames for efficient data handling.
+- Convert multiline values into a single line and process the transformation into a new CSV for validation.
+- Reads transformed source and target CSV files into pandas DataFrames for efficient data handling.
 - Validates the presence of a unique identifier field in both source and target files to ensure correct record matching.
 - Compares columns by name, regardless of their order, ensuring accurate matching across both files.
 - Detects discrepancies, including missing values, differing values, or unmatched rows.
 - Generates a detailed report of discrepancies, including field names, row numbers, and mismatched values from both source and target files.
 - Outputs a validation report (validation_report.txt) for in-depth review.
 - Provides a summary of validation results in the terminal, showing whether the validation passed or failed, along with the total count of discrepancies found.
-
 """
+
+def transform_to_single_line(value):
+    """Convert a value to a single line by removing line breaks"""
+    if isinstance(value, str):  # Ensure the value is a string before applying transformations
+        return value.replace('\n', ' ').replace('\r', ' ').strip()
+    return value  # Return the value unchanged if it's not a string
+
+def process_and_generate_csv(input_file, output_file, multiline_field):
+    """Process the input CSV, transform the specified multiline column, and save the result"""
+    try:
+        # Read the input CSV file into a DataFrame
+        df = pd.read_csv(input_file, low_memory=False)
+        print(f"File {input_file} read successfully.")
+
+        # Check if the specified multiline field exists and transform it
+        if multiline_field in df.columns:
+            df[multiline_field] = df[multiline_field].apply(transform_to_single_line)
+            print(f"Column '{multiline_field}' transformed.")
+        else:
+            print(f"Column '{multiline_field}' not found in the file.")
+
+        # Save the transformed data to the output CSV
+        df.to_csv(output_file, index=False, encoding='utf-8')
+        print(f"Transformed CSV saved to {output_file}.")
+    except Exception as e:
+        print(f"Error processing CSV: {e}")
+
 
 def validate_data(source_file, target_file, report_file):
     unique_id_field = 'someIDField'  # Edit this line with the unique identifier field name present in your files.
@@ -88,10 +115,11 @@ def validate_data(source_file, target_file, report_file):
 # Write content to the report file.
 def write_report(file_path, content):
     try:
-        with open(file_path, 'w') as file:
+        with open(file_path, 'w', encoding='utf-8') as file:  # Add encoding here
             file.write(content)
     except Exception as e:
         print(f"Error writing report file: {e}")
+
 
 # Log discrepancies related to missing unique IDs.
 def log_missing_discrepancies(df, file_type, unique_id_field):
@@ -194,9 +222,20 @@ def main():
     DOCUMENTS_PATH = os.path.expanduser('~/Documents')
     
     # Define file paths
-    source_file = os.path.join(DOCUMENTS_PATH, 'source.csv')
-    target_file = os.path.join(DOCUMENTS_PATH, 'target.csv')
+    source_file = os.path.join(DOCUMENTS_PATH, 'transformed_source.csv')
+    target_file = os.path.join(DOCUMENTS_PATH, 'transformed_target.csv')
     report_file = os.path.join(DOCUMENTS_PATH, 'validation_report.txt')
+    source_input_file = os.path.join(DOCUMENTS_PATH, 'source_input_file.csv')
+    target_input_file = os.path.join(DOCUMENTS_PATH, 'target_input_file.csv')
+    source_output_file = os.path.join(DOCUMENTS_PATH, 'transformed_source.csv')
+    target_output_file = os.path.join(DOCUMENTS_PATH, 'transformed_target.csv')
+
+    # Column to transform
+    multiline_field = "description" # Edit this line with the multiline field name you want to transform.
+
+    # Process and generate the transformed CSVs for both source and target
+    process_and_generate_csv(source_input_file, source_output_file, multiline_field)
+    process_and_generate_csv(target_input_file, target_output_file, multiline_field)
     
     # Validate data
     validate_data(source_file, target_file, report_file)
